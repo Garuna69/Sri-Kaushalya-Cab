@@ -1,16 +1,54 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarDays, MapPin, User, Phone, Send } from "lucide-react"
+import { CalendarDays, MapPin, User, Phone, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+
+const WHATSAPP_NUMBER = "919036947611"
 
 export function BookingForm() {
   const [submitted, setSubmitted] = useState(false)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    const formData = new FormData(e.currentTarget)
+    const name = formData.get("name") as string
+    const phone = formData.get("phone") as string
+    const pickup = formData.get("pickup") as string
+    const drop = formData.get("drop") as string
+    const date = formData.get("date") as string
+
+    const formattedDate = date
+      ? new Date(date).toLocaleDateString("en-IN", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "Not specified"
+
+    const message = [
+      `*New Booking Request - Sri Kaushalya Cab*`,
+      ``,
+      `*Name:* ${name}`,
+      `*Phone:* ${phone}`,
+      `*Pickup:* ${pickup}`,
+      `*Drop:* ${drop}`,
+      `*Travel Date:* ${formattedDate}`,
+      ``,
+      `Please confirm my booking. Thank you!`,
+    ].join("\n")
+
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+
     setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
+
+    // Small delay so the user sees the confirmation before redirect
+    setTimeout(() => {
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer")
+      setTimeout(() => setSubmitted(false), 4000)
+    }, 600)
   }
 
   return (
@@ -63,12 +101,24 @@ export function BookingForm() {
           <div className="rounded-2xl border border-border bg-card p-6 shadow-lg sm:p-8">
             {submitted ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
-                  <Send className="h-7 w-7 text-accent" />
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                  <MessageCircle className="h-7 w-7 text-green-600" />
                 </div>
-                <h3 className="mt-5 text-xl font-bold text-card-foreground">Booking Submitted!</h3>
+                <h3 className="mt-5 text-xl font-bold text-card-foreground">
+                  Redirecting to WhatsApp...
+                </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Our team will contact you shortly to confirm your ride.
+                  Your booking details are being sent via WhatsApp. If the page
+                  doesn{"'"}t open automatically,{" "}
+                  <a
+                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-green-600 underline"
+                  >
+                    click here
+                  </a>
+                  .
                 </p>
               </div>
             ) : (
@@ -84,6 +134,7 @@ export function BookingForm() {
                     <User className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <input
                       id="name"
+                      name="name"
                       type="text"
                       required
                       placeholder="Your full name"
@@ -101,6 +152,7 @@ export function BookingForm() {
                     <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <input
                       id="phone"
+                      name="phone"
                       type="tel"
                       required
                       placeholder="+91 XXXXX XXXXX"
@@ -118,9 +170,10 @@ export function BookingForm() {
                     <MapPin className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <input
                       id="pickup"
+                      name="pickup"
                       type="text"
                       required
-                      placeholder="Enter pickup address"
+                      placeholder="Enter pickup Location"
                       className="h-11 w-full rounded-lg border border-input bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                     />
                   </div>
@@ -135,9 +188,10 @@ export function BookingForm() {
                     <MapPin className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <input
                       id="drop"
+                      name="drop"
                       type="text"
                       required
-                      placeholder="Enter drop address"
+                      placeholder="Enter drop Location"
                       className="h-11 w-full rounded-lg border border-input bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                     />
                   </div>
@@ -152,6 +206,7 @@ export function BookingForm() {
                     <CalendarDays className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <input
                       id="date"
+                      name="date"
                       type="date"
                       required
                       className="h-11 w-full rounded-lg border border-input bg-background pl-10 pr-4 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
@@ -161,9 +216,10 @@ export function BookingForm() {
 
                 <Button
                   type="submit"
-                  className="mt-2 h-12 w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg text-base font-semibold"
+                  className="mt-2 h-12 w-full bg-green-600 text-white hover:bg-green-700 rounded-lg text-base font-semibold gap-2"
                 >
-                  Submit Booking Request
+                  <MessageCircle className="h-5 w-5" />
+                  Book via WhatsApp
                 </Button>
               </form>
             )}
